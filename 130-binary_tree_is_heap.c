@@ -20,12 +20,7 @@ int heap_check(const binary_tree_t *tree, int min, int max)
             heap_check(tree->right, tree->n + 1, max));
 }
 
-/**
- * binary_tree_is_heap - Check if a binary tree is a min-heap
- * @tree: A pointer to the root node of the tree to check
- *
- * Return: If the tree is a valid min-heap, 1, otherwise, 0
- */
+
 int binary_tree_is_heap(const binary_tree_t *tree)
 {
     if (!tree)
