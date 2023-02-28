@@ -1,40 +1,35 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "binary_trees.h"
 
 /**
- * heap_check - Check if a binary tree is a min-heap
- * @tree: A pointer to the root node of the tree to check
- * @min: The minimum allowed value for the nodes in the tree
- * @max: The maximum allowed value for the nodes in the tree
+ * main - Entry point
  *
- * Return: If the tree is a valid min-heap, 1, otherwise, 0
+ * Return: Always 0 (Success)
  */
-int heap_check(const binary_tree_t *tree, int min, int max)
+int main(void)
 {
-    if (!tree)
-        return (1);
+    binary_tree_t *root, *node;
 
-    if (tree->n < min || tree->n > max)
-        return (0);
+    root = binary_tree_node(NULL, 98);
+    root->left = binary_tree_node(root, 90);
+    root->right = binary_tree_node(root, 85);
+    root->left->right = binary_tree_node(root->left, 80);
+    root->left->left = binary_tree_node(root->left, 79);
 
-    return (heap_check(tree->left, min, tree->n - 1) &&
-            heap_check(tree->right, tree->n + 1, max));
-}
+    binary_tree_print(root);
+    printf("Is %d heap: %d\n", root->n, binary_tree_is_heap(root));
+    printf("Is %d heap: %d\n", root->left->n, binary_tree_is_heap(root->left));
 
+    node = binary_tree_node(root->right, 97);
+    root->right->left = node;
+    binary_tree_print(root);
+    printf("Is %d heap: %d\n", root->n, binary_tree_is_heap(root));
 
-int binary_tree_is_heap(const binary_tree_t *tree)
-{
-    if (!tree)
-        return (0);
-
-    if (!tree->left && !tree->right)
-        return (1);
-
-    if (!tree->right)
-        return (tree->n >= tree->left->n);
-
-    if (tree->n >= tree->left->n && tree->n >= tree->right->n)
-        return (heap_check(tree->left, INT_MIN, tree->n - 1) &&
-                heap_check(tree->right, tree->n + 1, INT_MAX));
+    node = binary_tree_node(root->right, 79);
+    root->right->right = node;
+    binary_tree_print(root);
+    printf("Is %d heap: %d\n", root->n, binary_tree_is_heap(root));
 
     return (0);
 }
