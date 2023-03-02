@@ -1,92 +1,100 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_size - Measures the size of a binary tree.
- *
- * @tree: Pointer to the root node of the tree to measure the size.
- *
- * Return: Size of the binary tree.
+ * swap_nodes - swaps two nodes in a binary tree
+ * @node1: first node
+ * @node2: second node
  */
-size_t binary_tree_size(const binary_tree_t *tree)
+void swap_nodes(heap_t **node1, heap_t **node2)
 {
-	if (!tree)
-		return (0);
+    int temp = (*node1)->n;
 
-	return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+    (*node1)->n = (*node2)->n;
+    (*node2)->n = temp;
 }
 
 /**
- * binary_tree_height - Measures the height of a binary tree.
+ * heapify - heapifies a binary tree
+ * @inserted: newly inserted node
  *
- * @tree: Pointer to the root node of the tree to measure the height.
+ * Return: pointer to heap node
+ */
+heap_t *heapify(heap_t *inserted)
+{
+    heap_t *current = inserted;
+
+    while (current->parent && current->n > current->parent->n)
+    {
+        swap_nodes(&current, &current->parent);
+        current = current->parent;
+    }
+    return (current);
+}
+
+/**
+ * binary_tree_height - calculates the height of a binary tree
+ * @tree: pointer to the root node of the tree to measure the height.
  *
- * Return: Height of the binary tree.
+ * Return: height of the tree
  */
 size_t binary_tree_height(const binary_tree_t *tree)
 {
-	size_t left_height, right_height;
+    size_t left_height = 0, right_height = 0;
 
-	if (!tree)
-		return (0);
-
-	left_height = binary_tree_height(tree->left);
-	right_height = binary_tree_height(tree->right);
-
-	if (left_height >= right_height)
-		return (left_height + 1);
-	return (right_height + 1);
+    if (!tree)
+        return (0);
+    if (tree->left)
+        left_height = binary_tree_height(tree->left) + 1;
+    if (tree->right)
+        right_height = binary_tree_height(tree->right) + 1;
+    return (left_height > right_height ? left_height : right_height);
 }
 
 /**
- * heap_insert - Inserts a value into a Max Binary Heap.
+ * binary_tree_size - calculates the size of a binary tree
+ * @tree: pointer to the root node of the tree to measure the size.
  *
- * @root: Double pointer to the root node of the Heap.
- * @value: Value to store in the node to be inserted.
+ * Return: size of the tree
+ */
+size_t binary_tree_size(const binary_tree_t *tree)
+{
+    if (!tree)
+        return (0);
+    return (1 + binary_tree_size(tree->left) + binary_tree_size(tree->right));
+}
+
+/**
+ * heap_insert - inserts a value into a Max Binary Heap
+ * @root: double pointer to the root node of the Heap
+ * @value: value to be inserted
  *
- * Return: Pointer to the inserted node or NULL on failure.
+ * Return: pointer to the inserted node or NULL on failure
  */
 heap_t *heap_insert(heap_t **root, int value)
 {
-	heap_t *new_node, *parent;
-	int tmp;
+    heap_t *inserted = binary_tree_node(*root, value), *current;
 
-	if (!root)
-		return (NULL);
+    if (!inserted)
+        return (NULL);
+    if (!*root)
+        return (*root = inserted);
+    current = heapify(inserted);
+    if (current == inserted)
+        return (inserted);
 
-	if (!*root)
-	{
-		new_node = binary_tree_node(NULL, value);
-		if (!new_node)
-			return (NULL);
-		*root = new_node;
-		return (new_node);
-	}
+    while (current->left && current->right)
+    {
+        size_t left_height = binary_tree_height(current->left);
+        size_t right_height = binary_tree_height(current->right);
 
-	parent = (heap_t *)binary_tree_node(NULL, 0);
-	if (!parent)
-		return (NULL);
-	parent->left = *root;
-	new_node = binary_tree_node(parent, value);
-	if (!new_node)
-	{
-		free(parent);
-		return (NULL);
-	}
+        if (left_height == 0 || (left_height > right_height))
+            current = current->left;
+        else if (right_height > 0 && right_height >= left_height)
+            current = current->right;
+    }
 
-	if (parent->left)
-		parent->left->parent = new_node;
-	parent->left = new_node;
-
-	while (new_node->parent && new_node->n > new_node->parent->n)
-	{
-		tmp = new_node->parent->n;
-		new_node->parent->n = new_node->n;
-		new_node->n = tmp;
-		new_node = new_node->parent;
-	}
-
-	free(parent);
-
-	return (new_node);
+    if (!current->left)
+        return (current->left = inserted);
+    return (current->right = inserted);
 }
 
